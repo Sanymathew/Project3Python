@@ -1,5 +1,5 @@
 __author__ = 'sanymathew'
-
+import operator
 
 f = open('emacs.log','r')
 count = 0;
@@ -9,6 +9,9 @@ listLines = []
 authorSet = set()
 maxAuthorSize = 0
 maxAuthorFileName = ""
+authorCount = dict()
+fileName = ""
+mostCommits = 0
 for line in f:
     if (line.__contains__("===")):
         count = count + 1
@@ -17,7 +20,12 @@ for line in f:
         if (authorLen > maxAuthorSize):
             maxAuthorSize = authorLen
             maxAuthorFileName = fileName
+
+        if len(authorCount) > 0:
+            mostCommits = max(authorCount.iteritems(), key = operator.itemgetter(1))[0]
+        print fileName, mostCommits, ":", authorCount.get(mostCommits)
         authorSet = set()
+        authorCount = dict()
         #continue;
     else:
         if line != '':
@@ -36,10 +44,15 @@ for line in f:
             if countRev > maxNumberOfRevisions:
                 maxNumberOfRevisions = countRev
                 maxFileName = fileName
-        if lines.__contains__("author"):
-            authorindex = lines.find("author")
+        if lines.__contains__("author:"):
+            authorindex = lines.find("author:")
             authorname = lines[authorindex+7:lines.find(";",authorindex)]
             authorSet.add(authorname)
+            if(authorCount.has_key(authorname)):
+                newCount = authorCount.get(authorname)+1
+                authorCount.__setitem__(authorname,newCount)
+            else:
+                authorCount.__setitem__(authorname,1)
 
 
     listLines = []
@@ -48,6 +61,7 @@ print "Number of Files: ", count
 print "Most Number of Revisions:",maxNumberOfRevisions
 print "File Name:",maxFileName
 print "Max Author File: ", maxAuthorFileName, "NumberOfAuthors: ",maxAuthorSize
+
 
 
 
